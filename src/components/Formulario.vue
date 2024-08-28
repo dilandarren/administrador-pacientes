@@ -7,10 +7,14 @@
             <span class="text-indigo-600 font-bold">Adminístralos</span>
         </p>
 
+        
+
         <form
             class="bg-white shadow-lg rouded-lg py-10 px-5 mb-10"
             @submit.prevent="validar"
         >
+
+            {{ nombre }}
         
         <!-- Begin Input -->
         <div class="mb-5">
@@ -27,7 +31,8 @@
                 type="text"
                 placeholder="Nombre de la mascota"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
-                v-model="paciente.nombre"
+                @input="$emit('update:nombre', $event.target.value)"
+                
             >
         </div>
         <!-- End Input -->
@@ -48,7 +53,7 @@
                 type="text"
                 placeholder="Nombre del Propietario"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
-                v-model="paciente.propietario"
+                
             >
         </div>
         <!-- End Input -->
@@ -69,7 +74,7 @@
                 type="email"
                 placeholder="Email del Propietarios"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
-                v-model="paciente.email"
+                
             >
         </div>
         <!-- End Input -->
@@ -88,7 +93,7 @@
                 id="alta"
                 type="date"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
-                v-model="paciente.alta"
+                
             >
         </div>
         <!-- End Input -->
@@ -106,7 +111,7 @@
                 id="alta"
                 placeholder="Describe los síntomas"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md h-40"
-                v-model="paciente.sintomas"
+                
             />
         </div>
 
@@ -116,6 +121,14 @@
             value="Registrar Paciente"
         >
         <!-- End Input -->
+         <div
+            class="mt-5"
+         >
+            <Alerta
+                v-if="alerta.mensaje"
+                :alerta="alerta"
+            />
+         </div>
 
         </form>
     </div>
@@ -124,18 +137,35 @@
 <script setup>
 
 import { reactive } from 'vue';
+import Alerta from './Alerta.vue';
 
-const paciente = reactive({
-    nombre: '',
-    propietario: '',
-    email: '',
-    alta: '',
-    sintomas: ''
-});
+const alerta = reactive({
+    tipo: '',
+    mensaje: ''
+})
+
+
+defineEmits(['update:nombre'])
+
+const props = defineProps({
+    nombre: {
+        type: String,
+        required: true
+    }
+})
+
 
 const validar = () => {
 
-    console.log('Validando...');
+    if (Object.values(paciente).includes('')) {
+        alerta.mensaje = 'Todos los campos son obligatorios'
+        alerta.tipo = 'error'
+        return
+    }
+
+    console.log('Agregando');
+
+    
 }
 
 </script>
