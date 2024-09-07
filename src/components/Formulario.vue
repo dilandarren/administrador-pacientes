@@ -14,7 +14,7 @@
             @submit.prevent="validar"
         >
 
-            {{ nombre }}
+            
         
         <!-- Begin Input -->
         <div class="mb-5">
@@ -30,6 +30,7 @@
                 id="mascota"
                 type="text"
                 placeholder="Nombre de la mascota"
+                :value="nombre"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
                 @input="$emit('update:nombre', $event.target.value)"
                 
@@ -44,6 +45,7 @@
             <label 
                 for="propietario"
                 class="block text-gray700 uppercase font-bold"
+                
             >
                 Nombre Propietario
             </label>
@@ -52,7 +54,9 @@
                 id="propietario"
                 type="text"
                 placeholder="Nombre del Propietario"
+                :value="propietario"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
+                @input="$emit('update:propietario', $event.target.value)"
                 
             >
         </div>
@@ -65,6 +69,7 @@
             <label 
                 for="email"
                 class="block text-gray700 uppercase font-bold"
+                
             >
                 Email
             </label>
@@ -73,7 +78,9 @@
                 id="email"
                 type="email"
                 placeholder="Email del Propietarios"
+                :value="email"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
+                @input="$emit('update:email', $event.target.value)"
                 
             >
         </div>
@@ -85,6 +92,8 @@
             <label 
                 for="alta"
                 class="block text-gray700 uppercase font-bold"
+                :value="alta"
+                
             >
                 Alta
             </label>
@@ -92,7 +101,9 @@
             <input 
                 id="alta"
                 type="date"
+                :value="alta"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md"
+                @input="$emit('update:alta', $event.target.value)"
                 
             >
         </div>
@@ -103,6 +114,7 @@
             <label 
                 for="sintomas"
                 class="block text-gray700 uppercase font-bold"
+                
             >
                 Síntomas
             </label>
@@ -110,7 +122,9 @@
             <textarea 
                 id="alta"
                 placeholder="Describe los síntomas"
+                :value="sintomas"
                 class="border-2 w-full p-2 mt-2 placeholder:gray-400 rounded-md h-40"
+                @input="$emit('update:sintomas', $event.target.value)"
                 
             />
         </div>
@@ -118,7 +132,7 @@
         <input 
             type="submit"
             class="text-center rounded-lg bg-indigo-600 w-full p-3 text-white uppercase foont-bold hover:bg-indigo-700 cursor-pointer transition-colors"
-            value="Registrar Paciente"
+            :value="[editando ? 'Guardar Cambios' : 'Registrar Paciente']"
         >
         <!-- End Input -->
          <div
@@ -136,8 +150,9 @@
 
 <script setup>
 
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import Alerta from './Alerta.vue';
+import Paciente from './Paciente.vue';
 
 const alerta = reactive({
     tipo: '',
@@ -145,10 +160,30 @@ const alerta = reactive({
 })
 
 
-defineEmits(['update:nombre'])
+const emit = defineEmits(['update:nombre', 'update:propietario', 'update:email', 'update:alta', 'update:sintomas', 'guardar-paciente'])
 
 const props = defineProps({
+    id:{
+        type: [String, null],
+        required: true
+    },
     nombre: {
+        type: String,
+        required: true
+    },
+    propietario: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    alta: {
+        type: String,
+        required: true
+    },
+    sintomas: {
         type: String,
         required: true
     }
@@ -157,15 +192,28 @@ const props = defineProps({
 
 const validar = () => {
 
-    if (Object.values(paciente).includes('')) {
+    if (Object.values(props).includes('')) {
         alerta.mensaje = 'Todos los campos son obligatorios'
         alerta.tipo = 'error'
         return
     }
 
-    console.log('Agregando');
+
+    emit('guardar-paciente');
+    alerta.mensaje = 'Paciente Almacenado Correctamente'
+    alerta.tipo = 'exito'
+    setTimeout(() => {
+        Object.assign(alerta, {
+            tipo: '',
+            mensaje: ''
+        })
+    }, 3000);
+    
 
     
 }
+const editando = computed(() => {
+    return props.id
+})
 
 </script>

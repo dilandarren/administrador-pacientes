@@ -1,17 +1,82 @@
 <script setup>
-  import {ref, reactive} from 'vue'
+  import {ref, reactive, watch, onMounted} from 'vue'
+  import {uid} from 'uid'
   import Formulario from './components/Formulario.vue';
   import Header from './components/Header.vue';
+  import Paciente from './components/Paciente.vue';
 
   const pacientes = ref([])
 
   const paciente = reactive({
-    nombre: '',
-    propietario: '',
-    email: '',
-    alta: '',
-    sintomas: ''
+    id: null,
+    nombre: 'chopsuey',
+    propietario: 'Dilan',
+    email: 'dilandarren@gmail.com',
+    alta: '2024-10-05',
+    sintomas: 'No quiere comer'
   });
+
+  watch(pacientes, () => {
+    guardarLocalStorage()
+  }, {
+    deep: true
+  })
+
+  // const paciente = reactive({
+  //   id: null,
+  //   nombre: '',
+  //   propietario: '',
+  //   email: '',
+  //   alta: '',
+  //   sintomas: ''
+  // });
+
+  const guardarLocalStorage = () => {
+    localStorage.setItem('pacientes', JSON.stringify(paciente.value));
+  }
+
+  onMounted(() => {
+    const pacientesStorage = localStorage.getItem('pacientes');
+    if (pacientesStorage) {
+      paciente.value = JSON.parse(pacientesStorage)
+    }
+  })
+
+  const guardarPaciente = () => {
+    if (paciente.id) {
+      const { id } = paciente;
+      const i = pacientes.value.findIndex((pacienteState) => pacienteState.id === id);
+      pacientes.value[i] = {...paciente}
+    } else {
+      pacientes.value.push({
+      ...paciente,
+      id: uid()
+    });
+    }
+
+    
+
+
+    //Otra forma
+    Object.assign(paciente, {
+      nombre: '',
+      propietario: '',
+      email: '',
+      alta: '',
+      sintomas: '',
+      id: null
+    })
+  }
+
+  const actualizarPaciente = (id) => {
+    const pacienteEditar = pacientes.value.filter(paciente => paciente.id === id)[0]
+    Object.assign(paciente, pacienteEditar)
+  }
+
+  const eliminarPaciente = (id) => {
+    pacientes.value = pacientes.value.filter( paciente => paciente.id !== id)
+  }
+
 </script>
 
 <template>
@@ -25,6 +90,9 @@
         v-model:email ="paciente.email"
         v-model:alta="paciente.alta"
         v-model:sintomas="paciente.sintomas"
+        @guardar-paciente="guardarPaciente"
+        :id="paciente.id"
+        
       
       />
 
@@ -32,10 +100,19 @@
 
         <h3 class="font-black text-3xl text-center">Administra tus Pacientes</h3>
 
-        <div 
-          v-if="pacientes.length > 0" 
-        >
+        <div v-if="pacientes.length > 0">
 
+          <p class="text mt-5 text-center mb-10">
+            Información de 
+            <span class="text-indigo-600 font-bold">Pacientes</span>
+          </p>
+
+          <Paciente 
+            v-for="paciente in pacientes"
+            :paciente="paciente"
+            @actualizar-paciente="actualizarPaciente"
+            @eliminar-paciente="eliminarPaciente"
+          />
         </div>
         <p v-else class="mt-20 text-2xl text-center">No hay Pacientes</p>
 
